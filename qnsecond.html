@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>User Information Form</title>
+</head>
+
+<body>
+    <h1>User Information</h1>
+    <form id="user-form">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br>
+
+        <label for="avatar">Avatar:</label>
+        <img id="avatar-preview" src="" alt="Avatar Preview"><br>
+        <input type="file" id="avatar" name="avatar" accept="image/*" required><br>
+
+        <input type="submit" value="Submit">
+    </form>
+
+    <script>
+        function makeRequest(url) {
+            return new Promise(function (resolve, reject) {
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', url, true);
+
+                xhr.onload = function () {
+                    if (xhr.status >= 200 && xhr.status < 400) {
+                        resolve(JSON.parse(xhr.responseText));
+                    } else {
+                        reject(xhr.status);
+                    }
+                };
+
+                xhr.onerror = function () {
+                    reject(xhr.status);
+                };
+
+                xhr.send();
+            });
+        }
+
+        function populateForm(user) {
+            var nameInput = document.getElementById('name');
+            var emailInput = document.getElementById('email');
+            var avatarPreview = document.getElementById('avatar-preview');
+
+            nameInput.value = user.first_name + ' ' + user.last_name;
+            emailInput.value = user.email;
+            avatarPreview.src = user.avatar;
+        }
+
+        function initiateRequest() {
+            makeRequest('https://reqres.in/api/users/2')
+                .then(function (response) {
+                    populateForm(response.data);
+                })
+                .catch(function (error) {
+                    var form = document.getElementById('user-form');
+                    form.innerHTML = 'Error: Failed to fetch user information.';
+                    console.log(error);
+                });
+        }
+        
+        var form = document.getElementById('user-form');
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            initiateRequest();
+        });
+    </script>
+</body>
+
+</html>

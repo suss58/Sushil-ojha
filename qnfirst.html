@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>User Information</title>
+</head>
+
+<body>
+    <h1>User Information</h1>
+    <div id="user-info"></div>
+
+    <script>
+        function getUserInfo() {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', 'https://jsonplaceholder.typicode.com/users/1');
+                xhr.onload = () => {
+                    if (xhr.status === 200) {
+                        resolve(JSON.parse(xhr.responseText));
+                    } else {
+                        reject('Error fetching user information');
+                    }
+                };
+                xhr.onerror = () => reject('Error fetching user information');
+                xhr.send();
+            });
+        }
+
+        function displayUserInfo(user) {
+            const userInfo = document.getElementById('user-info');
+            userInfo.innerHTML = `
+    <p>Name: ${user.name}</p>
+    <p>Email: ${user.email}</p>
+    <p>City: ${user.address.city}</p>
+  `;
+        }
+
+        getUserInfo()
+            .then(user => displayUserInfo(user))
+            .catch(error => {
+                const userInfo = document.getElementById('user-info');
+                userInfo.innerHTML = `<p>${error}</p>`;
+            });
+    </script>
+</body>
+
+</html>

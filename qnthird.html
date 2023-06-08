@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Information Form</title>
+</head>
+<body>
+    <h1>User Information Form</h1>
+    <form id="user-form">
+        <label for="first-name">First Name:</label>
+        <input type="text" id="first-name" name="first-name" required><br>
+
+        <label for="last-name">Last Name:</label>
+        <input type="text" id="last-name" name="last-name" required><br>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br>
+
+        <input type="submit" value="Submit">
+    </form>
+
+    <script>
+        function makeRequest(url, method, data) {
+            return new Promise(function(resolve, reject) {
+                var xhr = new XMLHttpRequest();
+                xhr.open(method, url, true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+
+                xhr.onload = function() {
+                    if (xhr.status === 201) {
+                        resolve(xhr.responseText);
+                    } else {
+                        reject(xhr.status);
+                    }
+                };
+
+                xhr.onerror = function() {
+                    reject(xhr.status);
+                };
+
+                xhr.send(data);
+            });
+        }
+
+        function validateEmail(email) {
+            var re = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+            return re.test(email);
+        }
+
+        var form = document.getElementById('user-form');
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            var firstName = document.getElementById('first-name').value;
+            var lastName = document.getElementById('last-name').value;
+            var email = document.getElementById('email').value;
+
+            if (!firstName || !lastName || !email) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            if (!validateEmail(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            var userData = {
+                first_name: firstName,
+                last_name: lastName,
+                email: email
+            };
+
+            var jsonData = JSON.stringify(userData);
+
+            makeRequest('https://reqres.in/api/users', 'POST', jsonData)
+                .then(function(response) {
+                    alert('User information submitted successfully.');
+                    form.reset();
+                })
+                .catch(function(error) {
+                    alert('Error: Failed to submit user information.');
+                    console.log(error);
+                });
+        });
+    </script>
+</body>
+</html>
